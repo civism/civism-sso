@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+       default-autowire="byName">
+
+
+    <!-- 自定义Realm -->
+    <bean id="upmsRealm" class="com.civism.shiro.UpmsRealm">
+        <property name="credentialsMatcher" ref="credentialsMatcher"/>
+        <property name="PermissionResolver" ref="urlPermissionResolver"/>
+    </bean>
+    <!-- 凭证匹配器 -->
+    <bean id="credentialsMatcher" class="com.civism.shiro.CustomCredentialsMatcher"/>
+
+    <bean id="urlPermissionResolver" class="com.civism.shiro.UrlPermissionResolver"/>
+
+    <!-- 安全管理器 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="upmsRealm"/>
+        <property name="sessionManager" ref="sessionManager"/>
+    </bean>
+
+
+    <!-- session管理器 -->
+    <!--<bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">-->
+    <bean id="sessionManager" class="com.civism.shiro.SsoSessionManager">
+        <!-- 设置全局会话超时时间，默认30分钟(1800000) -->
+        <property name="globalSessionTimeout" value="86400000"/>
+        <!-- 是否在会话过期后会调用SessionDAO的delete方法删除会话 默认true -->
+        <property name="deleteInvalidSessions" value="true"/>
+
+        <!-- 会话验证器调度时间 -->
+        <property name="sessionValidationInterval" value="1800000"/>
+        <!-- session存储的实现 -->
+        <property name="sessionDAO" ref="redisCacheSessionDAO"/>
+        <property name="sessionIdCookie.name" value="SSO-SESSIONID"/>
+    </bean>
+
+
+    <!--</bean>-->
+    <!-- 会话Session ID生成器 -->
+    <bean id="sessionIdGenerator" class="com.civism.shiro.JavaUuidSessionIdGenerator"/>
+
+    <bean id="redisCacheSessionDAO" class="com.civism.shiro.RedisCacheSessionDAO">
+        <property name="sessionIdGenerator" ref="sessionIdGenerator"/>
+    </bean>
+
+    <bean id="tokenUserFilter" class="com.civism.shiro.TokenUserFilter"/>
+
+    <bean id="validateUserFilter" class="com.civism.shiro.ValidateUserFilter"/>
+
+    <bean id="expireTokenUserFilter" class="com.civism.shiro.ExpireTokenUserFilter"/>
+
+    <!-- Shiro过滤器 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!-- Shiro的核心安全接口,这个属性是必须的 -->
+        <property name="securityManager" ref="securityManager"/>
+        <!-- 身份认证失败，则跳转到登录页面的配置 -->
+        <property name="loginUrl" value="/index"/>
+        <!-- 权限认证失败，则跳转到指定页面 -->
+        <property name="unauthorizedUrl" value="/index"/>
+        <!--登陆成功-->
+        <property name="successUrl" value="/index"/>
+        <property name="filters">
+            <util:map>
+                <entry key="token" value-ref="tokenUserFilter"/>
+                <entry key="validate" value-ref="validateUserFilter"/>
+                <entry key="expire" value-ref="expireTokenUserFilter"/>
+            </util:map>
+        </property>
+        <!-- Shiro连接约束配置,即过滤链的定义 -->
+        <property name="filterChainDefinitions">
+            <value>
+                /login/** = anon
+                /logout/** = logout
+                /static/**= anon
+                /** = token,validate,expire
+            </value>
+        </property>
+    </bean>
+
+    <!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <!-- 开启Shiro注解 -->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor"/>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+
+</beans>

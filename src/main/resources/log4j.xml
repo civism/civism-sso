@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <param name="encoding" value="UTF-8"/>
+        <param name="Threshold" value="INFO"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="【 %d{MM-dd HH:mm:ss:sss\} 】%p[%t]-%C{1}.%M(%L)(%r) | %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="/logs/sso-web/sso.web.log"/>
+        <param name="append" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="【 %d{MM-dd HH:mm:ss:sss\} 】%p[%t]-%C{1}.%M(%L)(%r) | %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="SHOW-SQL" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="/logs/sso-web/show.sql.log"/>
+        <param name="append" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="【 %d{MM-dd HH:mm:ss:sss\} 】%p[%t]-%C{1}.%M(%L)(%r) | %m%n"/>
+        </layout>
+    </appender>
+
+    <logger name="com.alibaba.druid.filter.stat.StatFilter" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="SHOW-SQL"/>
+    </logger>
+
+
+    <logger name="org.springframework" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <logger name="com.ibatis" additivity="true">
+        <level value="WARN"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <logger name="java.sql" additivity="true">
+        <level value="WARN"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <logger name="com.civism.controller" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+
+    <logger name="com.civism" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- ===================================================================== -->
+    <!-- Root logger的定义 -->
+    <!-- ===================================================================== -->
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</log4j:configuration>
