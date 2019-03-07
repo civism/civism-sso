@@ -3,21 +3,16 @@ package com.civism.shiro;
 import com.civism.constants.SsoConstants;
 import com.civism.dao.RedisClient;
 import com.civism.utils.SerializeUtil;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.session.Session;
-import org.apache.shiro.session.UnknownSessionException;
-import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
+import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author star
  */
-public class RedisCacheSessionDAO extends AbstractSessionDAO {
+public class RedisCacheSessionDAO extends EnterpriseCacheSessionDAO {
 
     @Resource
     private RedisClient redisClient;
@@ -37,35 +32,24 @@ public class RedisCacheSessionDAO extends AbstractSessionDAO {
         return SerializeUtil.deserialize(value, Session.class);
     }
 
+
     @Override
-    public void update(Session session) throws UnknownSessionException {
+    protected void doUpdate(Session session) {
         if (session == null || session.getId() == null) {
             throw new NullPointerException("session is empty");
         }
+        super.doUpdate(session);
         redisClient.set(SsoConstants.REDIS_KEY + session.getId(), SerializeUtil.serialize(session));
-
     }
 
     @Override
-    public void delete(Session session) {
+    protected void doDelete(Session session) {
         if (session == null || session.getId() == null) {
             throw new NullPointerException("session is empty");
         }
+        super.doDelete(session);
         redisClient.remove(SsoConstants.REDIS_KEY + session.getId());
     }
 
-    @Override
-    public Collection<Session> getActiveSessions() {
 
-        Set<byte[]> keys = redisClient.keys(SsoConstants.REDIS_KEY);
-        if (CollectionUtils.isEmpty(keys)) {
-            return null;
-        }
-        Collection<Session> collection = new HashSet<>();
-        for (byte[] key : keys) {
-            collection.add(SerializeUtil.deserialize(key, Session.class));
-        }
-        return collection;
-
-    }
 }
