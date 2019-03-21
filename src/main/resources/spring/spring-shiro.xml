@@ -57,12 +57,6 @@
     <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
         <!-- Shiro的核心安全接口,这个属性是必须的 -->
         <property name="securityManager" ref="securityManager"/>
-        <!-- 身份认证失败，则跳转到登录页面的配置 -->
-        <property name="loginUrl" value="/index"/>
-        <!-- 权限认证失败，则跳转到指定页面 -->
-        <property name="unauthorizedUrl" value="/index"/>
-        <!--登陆成功-->
-        <property name="successUrl" value="/index"/>
         <property name="filters">
             <util:map>
                 <entry key="token" value-ref="tokenUserFilter"/>

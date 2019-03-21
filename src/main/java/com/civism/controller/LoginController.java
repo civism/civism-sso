@@ -3,6 +3,7 @@ package com.civism.controller;
 
 import com.civism.constants.SsoConstants;
 import com.civism.dao.RedisClient;
+import com.civism.error.CustomAccountException;
 import com.civism.error.ErrorType;
 import com.civism.service.UserService;
 import com.civism.shiro.SsoUserNameToken;
@@ -14,8 +15,6 @@ import com.civism.vo.Menu;
 import com.civism.vo.UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -105,12 +104,9 @@ public class LoginController extends BaseController {
         SsoUserNameToken ssoUserNameToken = new SsoUserNameToken(loginEntity);
         try {
             SecurityUtils.getSubject().login(ssoUserNameToken);
-        } catch (UnknownAccountException e) {
+        } catch (CustomAccountException e) {
             logger.error("login error ", e);
-            return new ResponseEntity(new SsoResponse<>(ErrorType.USER_NO_EXIST).getJSONP(callback), HttpStatus.OK);
-        } catch (IncorrectCredentialsException e) {
-            logger.error("login error", e);
-            return new ResponseEntity(new SsoResponse<>(ErrorType.PASSWORD_ERROR).getJSONP(callback), HttpStatus.OK);
+            return new ResponseEntity(new SsoResponse<>(e.getErrorType()).getJSONP(callback), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("login error", e);
             return new ResponseEntity(new SsoResponse<>(ErrorType.SYSTEM_ERROR).getJSONP(callback), HttpStatus.OK);

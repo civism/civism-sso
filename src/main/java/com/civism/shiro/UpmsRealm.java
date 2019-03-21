@@ -4,13 +4,16 @@ package com.civism.shiro;
 import com.civism.constants.SsoConstants;
 import com.civism.dao.RedisClient;
 import com.civism.error.CivismException;
-import com.civism.error.ErrorType;
+import com.civism.error.CustomAccountException;
 import com.civism.service.UserService;
 import com.civism.utils.SerializeUtil;
 import com.civism.vo.LoginEntity;
 import com.civism.vo.UserInfo;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -72,17 +75,7 @@ public class UpmsRealm extends AuthorizingRealm {
             userInfo.setToken((String) id);
             redisClient.set((String) id, SerializeUtil.serialize(userInfo), SsoConstants.DEFAULT_LOGIN_EXPIRE);
         } catch (CivismException e) {
-            if (e.getErrorCode().equals(ErrorType.USER_NO_EXIST)) {
-                throw new UnknownAccountException();
-            } else if (e.getErrorCode().equals(ErrorType.PASSWORD_ERROR)) {
-                throw new IncorrectCredentialsException();
-            } else if (e.getErrorCode().equals(ErrorType.TOKEN_INVALID)) {
-                throw new ExpiredCredentialsException();
-            } else if (e.getErrorCode().equals(ErrorType.USER_WX_ACCESSTOKEN_ERROR)) {
-                throw new IncorrectCredentialsException();
-            } else if (e.getErrorCode().equals(ErrorType.USER_WX_SILENCE_ACCESSTOKEN_ERROR)) {
-                throw new IncorrectCredentialsException();
-            }
+            throw new CustomAccountException(e.getErrorCode());
         }
         return new SimpleAuthenticationInfo(userInfo, userInfo.getToken(), getName());
     }
