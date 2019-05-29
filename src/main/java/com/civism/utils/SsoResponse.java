@@ -2,6 +2,7 @@ package com.civism.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.civism.error.ErrorType;
+import org.apache.commons.lang3.StringUtils;
 
 
 import java.io.Serializable;
@@ -73,10 +74,26 @@ public class SsoResponse<T> implements Serializable {
 
 
     public String getJSONP(String callback) {
-        if (success) {
-            return callback + "({\"success\":true," + "data:" + JSON.toJSONString(data) + "})";
+        if (StringUtils.isBlank(callback)) {
+            if (success) {
+                return "{\"success\":true," + "\"data\":" + JSON.toJSONString(data) + "}";
+            } else {
+                StringBuilder builder = new StringBuilder();
+                builder.append("{\"").append("errorCode\":\"").append(this.getErrorCode()).append("\"").append(",\"success\":false")
+                        .append(",\"errorMsg\":\"").append(this.getErrorMsg()).append("\"");
+                builder.append("}");
+                return builder.toString();
+            }
         } else {
-            return callback + "({\"" + "errorCode\":\"" + this.getErrorCode() + "\"" + ",\"success\":false" + ",\"errorMsg\":\"" + this.getErrorMsg() + "\"})";
+            if (success) {
+                return callback + "({\"success\":true," + "data:" + JSON.toJSONString(data) + "})";
+            } else {
+                StringBuilder builder = new StringBuilder(callback);
+                builder.append("({\"").append("errorCode\":\"").append(this.getErrorCode());
+                builder.append("\"").append(",\"success\":false").append(",\"errorMsg\":\"").append(this.getErrorMsg()).append("\"");
+                builder.append("})");
+                return builder.toString();
+            }
         }
     }
 }
