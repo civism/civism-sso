@@ -80,9 +80,4 @@ public class UpmsRealm extends AuthorizingRealm {
         return new SimpleAuthenticationInfo(userInfo, userInfo.getToken(), getName());
     }
 
-
-    @Override
-    protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
-        super.assertCredentialsMatch(token, info);
-    }
 }
