@@ -18,3 +18,5 @@
     * 鉴权接口：该接口只验证了该用户在该角色的数据功能接口，所以设计数据库建议把菜单跟功能分离
 # 使用手册
    [使用说明](https://github.com/civism/civism-sso/wiki)
+# 具体接入介绍
+  https://www.jianshu.com/p/1603c60f1de6
