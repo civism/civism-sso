@@ -2,10 +2,8 @@ package com.civism.sso.config;
 
 import com.civism.sso.filter.CheckLoginFilter;
 import com.civism.sso.filter.RefreshFilter;
-import com.civism.sso.shiro.CivismShiroUpmsRealm;
-import com.civism.sso.shiro.JavaUuidSessionIdGenerator;
-import com.civism.sso.shiro.ShiroRedisCacheSessionDAO;
-import com.civism.sso.shiro.ShiroSessionManager;
+import com.civism.sso.shiro.*;
+import org.apache.shiro.authz.permission.PermissionResolver;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -92,7 +90,10 @@ public class ShiroConfig {
 
     @Bean
     public Realm getRealm() {
-        return new CivismShiroUpmsRealm();
+        CivismShiroUpmsRealm civismShiroUpmsRealm = new CivismShiroUpmsRealm();
+        UrlPermissionResolver urlPermissionResolver = new UrlPermissionResolver();
+        civismShiroUpmsRealm.setPermissionResolver(urlPermissionResolver);
+        return civismShiroUpmsRealm;
     }
 
 }

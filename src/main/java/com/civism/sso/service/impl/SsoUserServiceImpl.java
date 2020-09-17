@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class SsoUserServiceImpl extends ServiceImpl<SsoUserDao, SsoUserDO> implements SsoUserService {
 
     @Override
-    public SsoUserDO queryUserByUserName(String userName, String password) {
-        return this.getOne(Wrappers.<SsoUserDO>lambdaQuery().eq(SsoUserDO::getName, userName).eq(SsoUserDO::getPassword, password));
+    public SsoUserDO queryUserByUserName(String userName) {
+        return this.getOne(Wrappers.<SsoUserDO>lambdaQuery().eq(SsoUserDO::getName, userName));
     }
 }

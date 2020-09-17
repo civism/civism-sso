@@ -13,8 +13,7 @@ public interface SsoUserService extends IService<SsoUserDO> {
     /**
      * 通过用户名和密码查找用户
      * @param userName
-     * @param password
      * @return
      */
-    SsoUserDO queryUserByUserName(String userName, String password);
+    SsoUserDO queryUserByUserName(String userName);
 }

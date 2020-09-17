@@ -1,7 +1,6 @@
 package com.civism.sso.shiro;
 
 import com.civism.sso.constant.CivismConstant;
-import com.civism.sso.entity.LoginEntity;
 import com.civism.sso.entity.SsoUserDO;
 import com.civism.sso.entity.UserInfo;
 import com.civism.sso.enums.CustomExceptionEnum;
@@ -41,14 +40,12 @@ public class CivismShiroUpmsRealm extends AuthorizingRealm {
     }
 
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
-            throws AuthenticationException {
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
 
-        CustomUserPasswordToken usernamePasswordToken = (CustomUserPasswordToken) authenticationToken;
 
-        LoginEntity loginEntity = usernamePasswordToken.getLoginEntity();
+        Object principal = authenticationToken.getPrincipal();
 
-        SsoUserDO ssoUserDO = ssoUserService.queryUserByUserName(loginEntity.getUserName(), loginEntity.getPassword());
+        SsoUserDO ssoUserDO = ssoUserService.queryUserByUserName((String) principal);
         if (ssoUserDO == null) {
             throw new CustomException(CustomExceptionEnum.ACCOUNT_PASSWORD_ERROR);
         }
@@ -58,7 +55,7 @@ public class CivismShiroUpmsRealm extends AuthorizingRealm {
         UserInfo userInfo = UserInfo.builder().name(ssoUserDO.getName())
                 .token((String) token).id(ssoUserDO.getId()).build();
         redisClient.set((String) token, userInfo, CivismConstant.EXPIRE);
-        return new SimpleAuthenticationInfo(userInfo, usernamePasswordToken.getCredentials(),
+        return new SimpleAuthenticationInfo(userInfo, ssoUserDO.getPassword(),
                 getName());
     }
 }

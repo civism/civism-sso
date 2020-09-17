@@ -1,11 +1,12 @@
 package com.civism.sso.controller;
 
 import com.civism.sso.entity.LoginEntity;
-import com.civism.sso.shiro.CustomUserPasswordToken;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,9 +26,15 @@ public class IndexController {
     @ApiOperation("登陆")
     @PostMapping("/login")
     public Object login(@RequestBody LoginEntity loginEntity) {
-        CustomUserPasswordToken customUserPasswordToken = new CustomUserPasswordToken(loginEntity);
-        SecurityUtils.getSubject().login(customUserPasswordToken);
-        return SecurityUtils.getSubject().getPrincipal();
+        UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken();
+        usernamePasswordToken.setUsername(loginEntity.getUserName());
+        usernamePasswordToken.setPassword(loginEntity.getPassword().toCharArray());
+        Subject subject = SecurityUtils.getSubject();
+        subject.login(usernamePasswordToken);
+        if (subject.isAuthenticated()) {
+            return SecurityUtils.getSubject().getPrincipal();
+        }
+        return null;
     }
 
     @ApiOperation("鉴权")
