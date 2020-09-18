@@ -30,11 +30,7 @@ public class CheckLoginFilter extends BaseCheckFilter {
             return false;
         }
         Object o = redisClient.get(token);
-        if (o == null) {
-            return false;
-        }
-
-        return true;
+        return o != null;
 
 
     }

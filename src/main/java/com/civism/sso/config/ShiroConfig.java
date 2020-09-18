@@ -3,7 +3,6 @@ package com.civism.sso.config;
 import com.civism.sso.filter.CheckLoginFilter;
 import com.civism.sso.filter.RefreshFilter;
 import com.civism.sso.shiro.*;
-import org.apache.shiro.authz.permission.PermissionResolver;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -64,7 +63,7 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
 
-        Map<String, Filter> filters = new HashMap<>(1);
+        Map<String, Filter> filters = new HashMap<>();
 
         filters.put("checkLogin", getCheckLoginFilter());
         filters.put("refresh", getCheckLoginFilter());
@@ -92,6 +91,8 @@ public class ShiroConfig {
     public Realm getRealm() {
         CivismShiroUpmsRealm civismShiroUpmsRealm = new CivismShiroUpmsRealm();
         UrlPermissionResolver urlPermissionResolver = new UrlPermissionResolver();
+//        CustomRolePermissionResolver customRolePermissionResolver = new CustomRolePermissionResolver();
+//        civismShiroUpmsRealm.setRolePermissionResolver(customRolePermissionResolver);
         civismShiroUpmsRealm.setPermissionResolver(urlPermissionResolver);
         return civismShiroUpmsRealm;
     }

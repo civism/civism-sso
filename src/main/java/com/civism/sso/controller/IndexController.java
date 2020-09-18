@@ -39,7 +39,7 @@ public class IndexController {
 
     @ApiOperation("鉴权")
     @GetMapping("/auth")
-    public Object authenticate(HttpServletRequest request) {
+    public Boolean authenticate(HttpServletRequest request) {
         String servletPath = request.getServletPath();
         return SecurityUtils.getSubject().isPermitted(servletPath);
     }

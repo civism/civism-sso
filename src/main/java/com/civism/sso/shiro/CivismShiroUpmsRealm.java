@@ -13,11 +13,14 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author : Civism
@@ -36,7 +39,15 @@ public class CivismShiroUpmsRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         UserInfo userInfo = (UserInfo) principalCollection.getPrimaryPrincipal();
-        return null;
+
+        //根据用户查询有数据接口权限
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+        Set<String> urlSet = new HashSet<>();
+        urlSet.add("/sso/auth");
+        info.setStringPermissions(urlSet);
+
+//        info.setRoles(Sets.newHashSet("admin"));
+        return info;
     }
 
     @Override

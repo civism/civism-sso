@@ -1,7 +1,7 @@
 ### 鉴权
 GET http://localhost:8081/sso/auth
 Accept: application/json
-Token: c4b670f14bc947f984e44f7eec2cbb98
+Token: 871138b5458c45f3a6a9b09235bdbde9
 
 
 ### 登录信息
